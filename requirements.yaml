@@ -7,7 +7,6 @@ dependencies:
     - pandas
     - beautifulsoup4
     - requests
-    - shutil
     - rVADfast
     - re
     - SoundFile
