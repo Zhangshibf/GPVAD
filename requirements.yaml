@@ -1,4 +1,6 @@
 name: datadriven-vad
+channels:
+  - defaults
 dependencies:
   - numpy
   - pandas
