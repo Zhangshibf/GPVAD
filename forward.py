@@ -263,7 +263,7 @@ Please download the pretrained models from and try again or set --pretrained_dir
         for fname, output in frame_outputs.items():
             print(f"{fname} {output}")
     else:
-        print(prediction_df.to_markdown(showindex=False))
+        print(prediction_df.to_markdown(index=False))
 
 
 if __name__ == "__main__":
