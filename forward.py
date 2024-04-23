@@ -160,7 +160,8 @@ Please download the pretrained models from and try again or set --pretrained_dir
     for k, v in vars(args).items():
         logger.info(f"{k} : {str(v):<10}")
     if args.wavlist:
-        wavlist = args.wavlist
+        wavlist = args.wavlist.split(",")
+        print(wavlist[0])
     elif args.wav:
         wavlist = [args.wav]
     dset = OnlineLogMelDataset(wavlist, **LMS_ARGS)
