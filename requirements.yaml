@@ -2,29 +2,30 @@ name: datadriven-vad
 channels:
   - defaults
 dependencies:
-  - numpy
-  - pandas
-  - beautifulsoup4
-  - requests
-  - shutil
-  - rVADfast
-  - re
-  - SoundFile
-  - loguru
-  - h5py
-  - scipy
-  - torch
-  - sed_eval
-  - pytorch_ignite
-  - tqdm
-  - tabulate
-  - six
-  - fire
-  - librosa
-  - ignite
-  - scikit_learn
-  - typing
-  - PyYAML
-  - numba
-  - pypeln
+  - pip:
+    - numpy
+    - pandas
+    - beautifulsoup4
+    - requests
+    - shutil
+    - rVADfast
+    - re
+    - SoundFile
+    - loguru
+    - h5py
+    - scipy
+    - torch
+    - sed_eval
+    - pytorch_ignite
+    - tqdm
+    - tabulate
+    - six
+    - fire
+    - librosa
+    - ignite
+    - scikit_learn
+    - typing
+    - PyYAML
+    - numba
+    - pypeln
   
