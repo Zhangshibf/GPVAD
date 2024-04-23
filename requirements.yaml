@@ -8,7 +8,6 @@ dependencies:
     - beautifulsoup4
     - requests
     - rVADfast
-    - re
     - SoundFile
     - loguru
     - h5py
