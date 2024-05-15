@@ -28,16 +28,19 @@ DEVICE = torch.device(DEVICE)
 
 
 def extract_feature(wavefilepath, **kwargs):
+    wavefilepath = wavefilepath.replace("\n","")
     _, file_extension = os.path.splitext(wavefilepath)
-    if  '.wav' in file_extension:
-        wavefilepath = wavefilepath.replace("\n","")
+    if file_extension == '.wav':
+        
         wav, sr = sf.read(wavefilepath, dtype='float32')
     if file_extension == '.mp3':
         wav, sr = librosa.load(wavefilepath)
     elif file_extension not in ['.mp3', '.wav']:
         print("________________")
         print(wavefilepath)
+        print("________________")
         print(file_extension)
+        print("________________")
         raise NotImplementedError('Audio extension not supported... yet ;)')
     if wav.ndim > 1:
         wav = wav.mean(-1)
