@@ -28,10 +28,7 @@ DEVICE = torch.device(DEVICE)
 
 
 def extract_feature(wavefilepath, **kwargs):
-    print("________")
     _, file_extension = os.path.splitext(wavefilepath)
-    print(wavefilepath)
-    print(file_extension)
     if file_extension == '.wav':
         wav, sr = sf.read(wavefilepath, dtype='float32')
     if file_extension == '.mp3':
