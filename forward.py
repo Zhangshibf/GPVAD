@@ -30,6 +30,7 @@ DEVICE = torch.device(DEVICE)
 def extract_feature(wavefilepath, **kwargs):
     _, file_extension = os.path.splitext(wavefilepath)
     if  '.wav' in file_extension:
+        wavefilepath = wavefilepath.replace("\n","")
         wav, sr = sf.read(wavefilepath, dtype='float32')
     if file_extension == '.mp3':
         wav, sr = librosa.load(wavefilepath)
