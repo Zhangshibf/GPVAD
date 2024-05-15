@@ -34,6 +34,9 @@ def extract_feature(wavefilepath, **kwargs):
     if file_extension == '.mp3':
         wav, sr = librosa.load(wavefilepath)
     elif file_extension not in ['.mp3', '.wav']:
+        print("________________")
+        print(wavefilepath)
+        print(file_extension)
         raise NotImplementedError('Audio extension not supported... yet ;)')
     if wav.ndim > 1:
         wav = wav.mean(-1)
