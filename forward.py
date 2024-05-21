@@ -259,7 +259,8 @@ Please download the pretrained models from and try again or set --pretrained_dir
                       'w') as wp:
                 np.set_printoptions(suppress=True,
                                     precision=2,
-                                    linewidth=np.inf)
+                                    linewidth=np.inf,
+                                   threshold = sys.maxsize)
                 for fname, output in frame_outputs.items():
                     print(f"{fname} {output}", file=wp)
         logger.info(f"Putting results also to dir {args.output_path}")
