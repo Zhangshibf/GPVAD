@@ -275,6 +275,7 @@ Please download the pretrained models from and try again or set --pretrained_dir
             print(f"{fname} {output}")
     else:
         print(prediction_df.to_markdown(index=False))
+        print("blabla")
 
 
 if __name__ == "__main__":
