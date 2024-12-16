@@ -198,6 +198,7 @@ Please download the pretrained models from and try again or set --pretrained_dir
     threshold = tuple(args.threshold)
 
     speech_label_idx = np.where('Speech' == encoder.classes_)[0].squeeze()
+    print(speech_label_idx)
     # Using only binary thresholding without filter
     if len(threshold) == 1:
         postprocessing_method = utils.binarize
