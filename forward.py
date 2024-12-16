@@ -13,6 +13,11 @@ import argparse
 from models import crnn
 import os
 
+
+import sklearn.preprocessing
+sys.modules['sklearn.preprocessing.label'] = sys.modules['sklearn.preprocessing._label'] 
+
+
 SAMPLE_RATE = 22050
 EPS = np.spacing(1)
 LMS_ARGS = {
