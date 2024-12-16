@@ -140,10 +140,8 @@ def main():
 
     with open(output_path,'w') as wp:
         for n,prob in enumerate(speech_soft_pred[0]):
-            start = n*model_resolution
-            end = (n+1)*model_resolution
-            print(prob)
-            prob = float(prob)
+            start = str(n*model_resolution)
+            end = str((n+1)*model_resolution)
             line = start+"\t"+end+"\t"+prob+"\n"
             wp.write(line)
 
