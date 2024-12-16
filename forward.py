@@ -70,55 +70,13 @@ class OnlineLogMelDataset(torch.utils.data.Dataset):
 
 
 MODELS = {
-    't1': {
-        'model': crnn,
-        'outputdim': 527,
-        'encoder': 'labelencoders/teacher.pth',
-        'pretrained': 'teacher1/model.pth',
-        'resolution': 0.02
-    },
-    't2': {
-        'model': crnn,
-        'outputdim': 527,
-        'encoder': 'labelencoders/teacher.pth',
-        'pretrained': 'teacher2/model.pth',
-        'resolution': 0.02
-    },
     'sre': {
         'model': crnn,
         'outputdim': 2,
         'encoder': 'labelencoders/students.pth',
         'pretrained': 'sre/model.pth',
         'resolution': 0.02
-    },
-    'v2': {
-        'model': crnn,
-        'outputdim': 2,
-        'encoder': 'labelencoders/students.pth',
-        'pretrained': 'vox2/model.pth',
-        'resolution': 0.02
-    },
-    'a2': {
-        'model': crnn,
-        'outputdim': 2,
-        'encoder': 'labelencoders/students.pth',
-        'pretrained': 'audioset2/model.pth',
-        'resolution': 0.02
-    },
-    'a2_v2': {
-        'model': crnn,
-        'outputdim': 2,
-        'encoder': 'labelencoders/students.pth',
-        'pretrained': 'audio2_vox2/model.pth',
-        'resolution': 0.02
-    },
-    'c1': {
-        'model': crnn,
-        'outputdim': 2,
-        'encoder': 'labelencoders/students.pth',
-        'pretrained': 'c1/model.pth',
-        'resolution': 0.02
-    },
+    }
 }
 
 
@@ -131,59 +89,28 @@ def main():
         help=
         'A single wave/mp3/flac or any other compatible audio file with soundfile.read'
     )
-    group.add_argument(
-        '-l',
-        '--wavlist',
-        help=
-        'A list of wave or any other compatible audio files. E.g., output of find . -type f -name *.wav > wavlist.txt'
-    )
-    parser.add_argument('-model', choices=list(MODELS.keys()), default='sre')
-    parser.add_argument(
-        '--pretrained_dir',
-        default='pretrained_models',
-        help=
-        'Path to downloaded pretrained models directory, (default %(default)s)'
-    )
+
     parser.add_argument('-o',
                         '--output_path',
                         default=None,
-                        help='Output folder to save predictions if necessary')
-    parser.add_argument('-soft',
-                        default=False,
-                        action='store_true',
-                        help='Outputs soft probabilities.')
-    parser.add_argument('-hard',
-                        default=False,
-                        action='store_true',
-                        help='Outputs hard labels as zero-one array.')
-    parser.add_argument('-th',
-                        '--threshold',
-                        default=(0.5, 0.1),
-                        type=float,
-                        nargs="+")
+                        help='Output file to save soft predictions')
+
     args = parser.parse_args()
     pretrained_dir = Path(args.pretrained_dir)
-    if not (pretrained_dir.exists() and pretrained_dir.is_dir()):
-        logger.error(f"""Pretrained directory {args.pretrained_dir} not found.
-Please download the pretrained models from and try again or set --pretrained_dir to your directory."""
-                     )
-        return
+
     logger.info("Passed args")
     for k, v in vars(args).items():
         logger.info(f"{k} : {str(v):<10}")
-    if args.wavlist:
-        wavs = open(args.wavlist).read()
-        wavlist = wavs.split(",")
-        print(wavlist[0])
-    elif args.wav:
-        wavlist = [args.wav]
+
+    wavlist = [args.wav]
+
     dset = OnlineLogMelDataset(wavlist, **LMS_ARGS)
     dloader = torch.utils.data.DataLoader(dset,
                                           batch_size=1,
                                           num_workers=3,
                                           shuffle=False)
 
-    model_kwargs_pack = MODELS[args.model]
+    model_kwargs_pack = MODELS['sre']
     model_resolution = model_kwargs_pack['resolution']
     # Load model from relative path
     model = model_kwargs_pack['model'](
@@ -193,93 +120,29 @@ Please download the pretrained models from and try again or set --pretrained_dir
     encoder = torch.load(pretrained_dir / model_kwargs_pack['encoder'])
     logger.trace(model)
 
-    output_dfs = []
-    frame_outputs = {}
-    threshold = tuple(args.threshold)
 
     speech_label_idx = np.where('Speech' == encoder.classes_)[0].squeeze()
-    print(speech_label_idx)
-    # Using only binary thresholding without filter
-    if len(threshold) == 1:
-        postprocessing_method = utils.binarize
-    else:
-        postprocessing_method = utils.double_threshold
+
     with torch.no_grad(), tqdm(total=len(dloader), leave=False,
                                unit='clip') as pbar:
         for feature, filename in dloader:
             feature = torch.as_tensor(feature).to(DEVICE)
-            prediction_tag, prediction_time = model(feature)
-            prediction_tag = prediction_tag.to('cpu')
+            _, prediction_time = model(feature)
             prediction_time = prediction_time.to('cpu')
-            print(prediction_time)
+            speech_soft_pred = prediction_time[
+                ..., speech_label_idx].numpy()
 
-            if prediction_time is not None:  # Some models do not predict timestamps
 
-                cur_filename = filename[0]  #Remove batchsize
-                thresholded_prediction = postprocessing_method(
-                    prediction_time, *threshold)
-                speech_soft_pred = prediction_time[..., speech_label_idx]
-                if args.soft:
-                    speech_soft_pred = prediction_time[
-                        ..., speech_label_idx].numpy()
-                    frame_outputs[cur_filename] = speech_soft_pred[
-                        0]  # 1 batch
+    args.output_path = Path(args.output_path)
+    args.output_path.mkdir(parents=True, exist_ok=True)
 
-                if args.hard:
-                    speech_hard_pred = thresholded_prediction[...,
-                                                              speech_label_idx]
-                    frame_outputs[cur_filename] = speech_hard_pred[
-                        0]  # 1 batch
-                # frame_outputs_hard.append(thresholded_prediction)
-
-                labelled_predictions = utils.decode_with_timestamps(
-                    encoder, thresholded_prediction)
-                pred_label_df = pd.DataFrame(
-                    labelled_predictions[0],
-                    columns=['event_label', 'onset', 'offset'])
-                if not pred_label_df.empty:
-                    pred_label_df['filename'] = cur_filename
-                    pred_label_df['onset'] *= model_resolution
-                    pred_label_df['offset'] *= model_resolution
-                    pbar.set_postfix(labels=','.join(
-                        np.unique(pred_label_df['event_label'].values)))
-                    pbar.update()
-                    output_dfs.append(pred_label_df)
-
-    full_prediction_df = pd.concat(output_dfs).sort_values(by='onset',ascending=True).reset_index()
-    #print(full_prediction_df)
-    prediction_df = full_prediction_df[full_prediction_df['event_label'] ==
-                                       'Speech']
-
-    if args.output_path:
-        args.output_path = Path(args.output_path)
-        args.output_path.mkdir(parents=True, exist_ok=True)
-        prediction_df.to_csv(args.output_path / 'speech_predictions.tsv',
-                             sep='\t',
-                             index=False)
-        full_prediction_df.to_csv(args.output_path / 'all_predictions.tsv',
-                                  sep='\t',
-                                  index=False)
-
-        if args.soft or args.hard:
-            prefix = 'soft' if args.soft else 'hard'
-            with open(args.output_path / f'{prefix}_predictions.txt',
-                      'w') as wp:
-                # np.set_printoptions(suppress=True,
-                #                     precision=2,
-                #                     linewidth=np.inf,
-                #                    threshold = sys.maxsize)
-                for fname, output in frame_outputs.items():
-                    wp.write(f"{fname} {output}\n")
-                    print(len(output))
-        logger.info(f"Putting results also to dir {args.output_path}")
-    if args.soft or args.hard:
-        np.set_printoptions(suppress=True, precision=2, linewidth=np.inf)
-        # for fname, output in frame_outputs.items():
-        #     print(f"{fname} {output}")
-    else:
-        print(prediction_df.to_markdown(index=False))
-        print("blabla")
+    with open(args.output_path,'w') as wp:
+        for n,prob in enumerate(speech_soft_pred):
+            start = n*model_resolution
+            end = (n+1)*model_resolution
+            prob = float(prob)
+            line = start+"\t"+end+"\t"+prob+"\n"
+            wp.write(line)
 
 
 if __name__ == "__main__":
