@@ -96,7 +96,7 @@ def main():
                         help='Output file to save soft predictions')
 
     args = parser.parse_args()
-    pretrained_dir = Path(args.pretrained_dir)
+    pretrained_dir = Path('pretrained_models')
 
     logger.info("Passed args")
     for k, v in vars(args).items():
