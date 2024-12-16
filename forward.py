@@ -264,12 +264,12 @@ Please download the pretrained models from and try again or set --pretrained_dir
             prefix = 'soft' if args.soft else 'hard'
             with open(args.output_path / f'{prefix}_predictions.txt',
                       'w') as wp:
-                np.set_printoptions(suppress=True,
-                                    precision=2,
-                                    linewidth=np.inf,
-                                   threshold = sys.maxsize)
+                # np.set_printoptions(suppress=True,
+                #                     precision=2,
+                #                     linewidth=np.inf,
+                #                    threshold = sys.maxsize)
                 for fname, output in frame_outputs.items():
-                    print(f"{fname} {output}", file=wp)
+                    wp.write(f"{fname} {output}\n")
         logger.info(f"Putting results also to dir {args.output_path}")
     if args.soft or args.hard:
         np.set_printoptions(suppress=True, precision=2, linewidth=np.inf)
