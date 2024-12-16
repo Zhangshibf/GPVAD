@@ -134,7 +134,7 @@ def main():
 
 
     output_path = Path(args.output_path)
-    folder= os.path.dirname(output_path)
+    folder_path= os.path.dirname(output_path)
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
 
