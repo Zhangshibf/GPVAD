@@ -138,8 +138,9 @@ def main():
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
 
+    print(speech_soft_pred)
     with open(output_path,'w') as wp:
-        for n,prob in enumerate(speech_soft_pred):
+        for n,prob in enumerate(speech_soft_pred[0]):
             start = n*model_resolution
             end = (n+1)*model_resolution
             print(prob)
