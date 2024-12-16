@@ -270,6 +270,7 @@ Please download the pretrained models from and try again or set --pretrained_dir
                 #                    threshold = sys.maxsize)
                 for fname, output in frame_outputs.items():
                     wp.write(f"{fname} {output}\n")
+                    print(len(output))
         logger.info(f"Putting results also to dir {args.output_path}")
     if args.soft or args.hard:
         np.set_printoptions(suppress=True, precision=2, linewidth=np.inf)
