@@ -266,13 +266,13 @@ Please download the pretrained models from and try again or set --pretrained_dir
                                     precision=2,
                                     linewidth=np.inf,
                                    threshold = sys.maxsize)
-                for fname, output in frame_outputs.items():
-                    print(f"{fname} {output}", file=wp)
+                # for fname, output in frame_outputs.items():
+                #     print(f"{fname} {output}", file=wp)
         logger.info(f"Putting results also to dir {args.output_path}")
     if args.soft or args.hard:
         np.set_printoptions(suppress=True, precision=2, linewidth=np.inf)
-        for fname, output in frame_outputs.items():
-            print(f"{fname} {output}")
+        # for fname, output in frame_outputs.items():
+        #     print(f"{fname} {output}")
     else:
         print(prediction_df.to_markdown(index=False))
         print("blabla")
