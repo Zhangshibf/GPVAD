@@ -210,6 +210,7 @@ Please download the pretrained models from and try again or set --pretrained_dir
             prediction_tag, prediction_time = model(feature)
             prediction_tag = prediction_tag.to('cpu')
             prediction_time = prediction_time.to('cpu')
+            print(prediction_time)
 
             if prediction_time is not None:  # Some models do not predict timestamps
 
@@ -245,7 +246,7 @@ Please download the pretrained models from and try again or set --pretrained_dir
                     output_dfs.append(pred_label_df)
 
     full_prediction_df = pd.concat(output_dfs).sort_values(by='onset',ascending=True).reset_index()
-    print(full_prediction_df)
+    #print(full_prediction_df)
     prediction_df = full_prediction_df[full_prediction_df['event_label'] ==
                                        'Speech']
 
