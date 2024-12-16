@@ -133,10 +133,12 @@ def main():
                 ..., speech_label_idx].numpy()
 
 
-    args.output_path = Path(args.output_path)
-    args.output_path.mkdir(parents=True, exist_ok=True)
+    output_path = Path(args.output_path)
+    folder= os.path.dirname(output_path)
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
 
-    with open(args.output_path,'w') as wp:
+    with open(output_path,'w') as wp:
         for n,prob in enumerate(speech_soft_pred):
             start = n*model_resolution
             end = (n+1)*model_resolution
